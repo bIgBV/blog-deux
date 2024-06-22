@@ -31,6 +31,7 @@
             git
             jq
             nixpkgs-fmt
+            zola
           ];
         };
       });
