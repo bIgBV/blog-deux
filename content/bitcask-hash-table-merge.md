@@ -28,7 +28,7 @@ The key insight they presented was to combine the amortized constant time semant
 # Working model
 The model for a bitcask database is based off a single directory which is the `Bitcask` containing the data files. At any given point, only one of them is open for 
 {% sidenote(input_name="write-semantics", title="writing" ) %}
-    The paper also calls out the fact that only one process can ever open the active file with read write permissions.
+    The paper also calls out (<em>all the</em> way at the end) the fact that only one process can ever open the active file with read write permissions.
 {% end %} 
 
 - A single instance is a directory of files.
