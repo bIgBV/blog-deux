@@ -1,0 +1,9 @@
+<span class="sidenote">
+    <label class="sidenote-label" tabindex="0" for="sidenote-{{ number }}__checkbox">{{ title}}</label>
+    <input class="sidenote-checkbox" type="checkbox" id="sidenote-{{ number }}__checkbox"></input>
+    <small class="sidenote-content" id="sidenote-{{ number }}">
+        <span class="sidenote-content sidenote-{{ number }}">
+            {{ body | markdown | safe }}
+        </span>
+    </small>
+</span>

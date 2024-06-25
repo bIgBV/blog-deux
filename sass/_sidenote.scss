@@ -1,0 +1,19 @@
+$sidenote-width: 1em;
+$sidenote-offset: 2em;
+
+.sidenote-content {
+    display: block;
+    position: absolute;
+    width: $sidenote-width;
+    box-sizing: border-box;
+    margin-top: -1.5em;
+
+    &.sidenote-right {
+        right: 0;
+        margin-right: -($sidenote-width + $sidenote-offset);
+    }
+}
+
+.sidenote-checkbox {
+    display: none;
+}

@@ -29,10 +29,7 @@ compile_sass = true
 build_search_index = false
 
 # Built in taxonomies of zerm.
-taxonomies = [
-  {name = "tags"},
-  {name = "categories"},
-]
+taxonomies = [{ name = "tags" }, { name = "categories" }]
 
 [extra]
 # Put all your custom variables here
@@ -92,9 +89,9 @@ logo_home_link = "/"
 # Menu items to display. You define a url and the name of the menu item.
 # NOTE: `$BASE_URL/` must be included in the url name.
 main_menu = [
-  {url="/about/", name="about"},
-  {url="/contact/", name="contact"},
-  {url="https://github.com/bIgBV", name="Github", external=true},
+  { url = "/about/", name = "about" },
+  { url = "/contact/", name = "contact" },
+  { url = "https://github.com/bIgBV", name = "Github", external = true },
 ]
 
 # Displayed as title of drop-down menu when size of main_menu > show_menu_items.
@@ -113,12 +110,12 @@ read_other_posts = "read other posts"
 enable_katex = true
 
 # Options for disqus
-disqus = { enabled=false, short_name="" }
+disqus = { enabled = false, short_name = "" }
 
 # generate Table of Contents for all articles
 # Table of Contents can be generated for individual articles
 # by adding `ToC = true` in [extra] section in frontmatter
-# ToC = true
+ToC = true
 
 [markdown]
 # Whether to do syntax highlighting
@@ -129,5 +126,4 @@ highlight_code = true
 # https://www.getzola.org/documentation/getting-started/configuration/#syntax-highlighting
 # for more information and themes built into Zola.
 highlight_theme = "gruvbox-dark" # Other dark themes that work: "1337", "agola-dark",
-                         # "visual-studio-dark"
-
+# "visual-studio-dark"
