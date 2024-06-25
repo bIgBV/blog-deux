@@ -51,7 +51,7 @@ show_tags = true
 
 # Theme color. You can have any color you want, so long as it's...
 # ["orange", "blue", "red", "green", "pink"]
-theme_color = "red"
+theme_color = "custom-color"
 
 # Custom css to style over the defaults. This is useful when you only have a
 # few small tweaks to make rather than a major rehaul to the theme.
