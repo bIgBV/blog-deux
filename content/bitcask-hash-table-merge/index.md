@@ -1,6 +1,6 @@
 +++
 title = "BitCask a hash table based merge tree"
-description="Notes on the bitcask paper"
+description="Bitcask is a key value store built on top of the principals of a hash table combined with the semantics of an LSM tree. This article is some notes from reading the original paper."
 date = 2024-06-21
 
 [taxonomies]
