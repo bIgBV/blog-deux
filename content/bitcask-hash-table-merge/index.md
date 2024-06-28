@@ -81,10 +81,11 @@ As a part of this process, they also describe the creation of a "hint file" whic
 
 While the authors do not go into the details of the compaction algorithm itself, I think something along the lines _should_ work:
 
-1. Scan non-compacted data files in reverse
-2. For an entry in the data file, if it's location matches what is present in the key dir, add it to the compacted file as well as the hint file.
-3. If it is a tombstone value, ignore it
-4. If the position in the file of the entry does not match what is present in the `KeyDir` ignore the entry.
+1. Scan non-compacted data files in reverse.
+2. For an entry in the data file:
+    *  if it's location matches the one in `KeyDir`, add it to the compacted file as well as the hint file.
+3. If it is a tombstone value, ignore it.
+4. If the position does not match what's present in `KeyDir` ignore it.
 
 
 # Conclusion
