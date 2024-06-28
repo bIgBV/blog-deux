@@ -12,8 +12,8 @@ spend time exploring the mountains of the PNW.
 
 ## Setup
 
-Some fun facts about the setup of this project include:
-
+* Built using [Zola](https://www.getzola.org/)
+* Theme based on [Zerm](https://www.getzola.org/themes/zerm/)
 * Hosted on Amazon's s3 and served via Cloudfront
 
 Thanks for reading!

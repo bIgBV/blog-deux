@@ -78,7 +78,7 @@ center = true
 # og_preview_img = ""
 
 # Copyright notice if desired. Defaults to
-# copyright = "copyright notice here"
+copyright = "Bhargav Voleti"
 
 # What is displayed in the top left corner of the website. Default is zerm.
 logo_text = "Building Systems"
@@ -90,8 +90,8 @@ logo_home_link = "/"
 # NOTE: `$BASE_URL/` must be included in the url name.
 main_menu = [
   { url = "/about/", name = "about" },
-  { url = "/contact/", name = "contact" },
   { url = "https://github.com/bIgBV", name = "Github", external = true },
+  { url = "https://x.com/2093bps", name = "Twitter", external = true },
 ]
 
 # Displayed as title of drop-down menu when size of main_menu > show_menu_items.
