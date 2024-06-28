@@ -79,12 +79,19 @@ As a part of this process, they also describe the creation of a "hint file" whic
 
 ![hint-file-structure](hint-file.png)
 
+While the authors do not go into the details of the compaction algorithm itself, I think something along the lines _should_ work:
+
+1. Scan non-compacted data files in reverse
+2. For an entry in the data file, if it's location matches what is present in the key dir, add it to the compacted file as well as the hint file.
+3. If it is a tombstone value, ignore it
+4. If the position in the file of the entry does not match what is present in the `KeyDir` ignore the entry.
+
+
+# Conclusion
+
 The system is built in the context of running on the Erlang VM, and it is brought up in various places in paper. One interesting note is how the database is served concurrently across multiple processes. If an Erlang process starts up, it can check if an existing processin the same VM is already accessing this cask, and if so 
 {% sidenote(note_name="erlang-features" inline_segment="share the cask and the `KeyDir` structure with it.") %}
     My guess is, Erlang's message passing construct probably comes into play to gain access to the keydir structure for the read path.
  {% end %}
-
-
-# Conclusion
 
 The paper concludes with notes on how well the database structure described meets the requirements that were set out at the start. In general, the paper describes a fairly straightforward impelemntation, that has clear semantics and should be pretty fun to implement.
