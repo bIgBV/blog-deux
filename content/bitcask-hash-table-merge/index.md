@@ -18,7 +18,7 @@ As a part of a exercise in learing distributed databases from first principals, 
 
 From the start, the authors focued on plugagable storage, allowing them to test different kinds of storage engines.
 
-They laid out the following goals for the databse(paraphrasing):
+They laid out the following goals for the databse(paraphrasing)
 
 * Low latency single item reads and write
 * High throughput for streaming random writes
@@ -58,7 +58,7 @@ This is where the hash table part of the "Hash table merge tree" comes in. All t
 
 ![key-dir-structure](key-dir.png)
 
-During updates, the keydir is updated along with the on disk structure. The paper does not go into the specfics of the locking protocol for this step, but one can imagine a protocol which provides serializability.
+During updates, the keydir is updated along with the on disk structure. The paper does not go into the specifics of the locking protocol for this step, but one can imagine a protocol which provides serializability.
 
 
 ## Lookup request path
@@ -79,7 +79,7 @@ As a part of this process, they also describe the creation of a "hint file" whic
 
 ![hint-file-structure](hint-file.png)
 
-While the authors do not go into the details of the compaction algorithm itself, I think something along the lines _should_ work:
+While the authors do not go into the details of the compaction algorithm itself, I think something along these lines _should_ work:
 
 1. Scan non-compacted data files in reverse.
 2. For an entry in the data file:
