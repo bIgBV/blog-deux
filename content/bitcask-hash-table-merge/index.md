@@ -1,9 +1,12 @@
 +++
-date = 2024-06-21
 title = "BitCask a hash table based merge tree"
+description="Notes on the bitcask paper"
+date = 2024-06-21
 
 [taxonomies]
 categories = ["programming", "papers"]
+
+[extra]
 +++
 
 # [Overview]
@@ -49,7 +52,7 @@ And as you can see, the structure includes and internal only timestamp along wit
 [keydir]: #keydir
 
 This is where the hash table part of the "Hash table merge tree" comes in. All the active keys and their latest location on disk is stored in memory in the `KeyDir` structure. Both the keys and values are fixed size, which I suspect allows for 
-{% sidenote(note_name="hash-table-thought", inline_segment="optimized hash table impelentations." %}
+{% sidenote(note_name="hash-table-thought", inline_segment="optimized hash table impelentations." ) %}
     The resizing behaviour of most hashtables might not be what we want for an in memory structure which which more likely than not would reach a stable size. I wonder what kind of a data structure would fit this use case better.
 {% end %}
 
@@ -77,7 +80,7 @@ As a part of this process, they also describe the creation of a "hint file" whic
 ![hint-file-structure](hint-file.png)
 
 The system is built in the context of running on the Erlang VM, and it is brought up in various places in paper. One interesting note is how the database is served concurrently across multiple processes. If an Erlang process starts up, it can check if an existing processin the same VM is already accessing this cask, and if so 
-{% sidenote(name="erlang-features" inline_segment="share the cask and the `KeyDir` structure with it." %}
+{% sidenote(note_name="erlang-features" inline_segment="share the cask and the `KeyDir` structure with it.") %}
     My guess is, Erlang's message passing construct probably comes into play to gain access to the keydir structure for the read path.
  {% end %}
 
