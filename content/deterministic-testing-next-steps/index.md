@@ -33,7 +33,7 @@ leads to a lot of joy.
 > I cannot thank [Predrag Gruevski][predrag-website] enough for pointing me in
 > right direction and helping me understand the more complex pieces.
 
-[pregrad-website]: https://predr.ag/
+[predrag-website]: https://predr.ag/
 
 # The state machine
 
