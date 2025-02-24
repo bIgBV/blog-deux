@@ -30,6 +30,11 @@ This article is a exploration of how combining various techniques of building
 state machines using sans-io practices, and deterministic simulation testing
 leads to a lot of joy.
 
+> I cannot thank [Predrag Gruevski][predrag-website] enough for pointing me in
+> right direction and helping me understand the more complex pieces.
+
+[pregrad-website]: https://predr.ag/
+
 # The state machine
 
 The main focus of this controller is to be highly available with a focus on
