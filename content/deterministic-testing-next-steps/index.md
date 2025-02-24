@@ -63,6 +63,12 @@ enum State {
 enum Input {
     Initialized,
     // ...
+
+    ClusterEnabledState(bool),
+}
+
+enum Message {
+    CheckClusterEnabled(Endpoint { uri: String })
 }
 
 fn step(self, input: Input) -> State {
@@ -104,6 +110,7 @@ fn run_state_machine() {
         } 
     }
 }
+
 ```
 
 This notion of querying the state machine for any messages that can cause
@@ -119,6 +126,34 @@ that might require asynchronous operations (think network, FS, time, etc.).
 control of external interactions, the code driving the state machine has
 complete control over when the action can be performed.
 
+In order to map the state machine `Input` and `Output` types to specific
+actions, and their results, I have the `IoCore` type. By making this type
+generic over a simulator implementation, we can can get the desired behavior we
+want. The `Simulator` trait itself will be covered in the next section.
+
+```rust
+struct IoCore<S> {
+    simulator: S,
+}
+
+impl<S> IoCore<S>
+where
+    S: Simulator,
+{
+    pub fn handle_message_and_get_input(message: Output) -> Result<Input, IoCoreError> {
+        match input {
+            // Handle various message types, for example and election message
+            Output::CheckClusterEnabled(endpoint) => self
+                .simulator
+                .check_cluster_enabled(&endpoint.uri)
+                .map(|enabled| Input::ClusterEnabledState(enabled))
+                .map_err(Into::into),
+        }
+    }
+}
+```
+
+This type is then passed to the driver, which can use it to drive the state machine.
 
 # Deterministic Simulation Testing
 
@@ -126,6 +161,7 @@ We have the following pieces so far:
 
 - A state machine.
 - A driver to run the machine.
+- An abstraction to call simulator APIs.
 
 In order to close the loop, we bring in the concepts of deterministic
 simulation testing(DST). DST doesn't necessarily prescribe specific steps to
@@ -134,7 +170,8 @@ guidelines and techniques of building systems, at the end of which we should be
 able to fully simulate the external systems that our system under test
 interacts with.
 
-There's a [lot][foundation-db-talk] [of][] [literature][predrag-eurorust] on this topic, and they provide
+There's a [lot][foundation-db-talk] [of][tigerbeetle]
+[literature][predrag-eurorust] [on this][foundationdb] topic, and they provide
 excellent context about the problem space and the general guidelines. I'm
 someone who can internalize a concept only after building so it took me some
 time to wrap my head around all of the pieces that come together to make for a
@@ -142,6 +179,8 @@ system that is self describing and replay-able.
 
 [foundation-db-talk]: https://www.youtube.com/watch?v=4fFDFbi3toc
 [predrag-eurorust]: https://www.youtube.com/watch?v=3EFue8PDyic
+[tigerbeetle]: https://docs.tigerbeetle.com/about/vopr/
+[foundationdb]: https://apple.github.io/foundationdb/testing.html
 
 
 The neat thing is, this DST systems work extremely well with state machines and
@@ -312,6 +351,6 @@ when it wants to check on these notifications and acts on it, and by extension
 makes it deterministic. The `Simulator` interface now only needs to have
 methods like `fn check_cluster_notifications(&self) -> ClusterEvent` and `fn
 check_election_notification(&self) -> ElectionEvent`, and therefore, the
-implementors only need to care about serializing and deserializing the actual
+implementors only need to care about serializing and de-serializing the actual
 values, and not the entire mechanism of pushing the notification to the
 controller.
