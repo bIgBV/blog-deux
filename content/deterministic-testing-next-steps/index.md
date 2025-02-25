@@ -38,7 +38,7 @@ leads to a lot of joy.
 # The state machine
 
 The main focus of this controller is to be highly available with a focus on
-correctness, as this service will be the sole arbitrar for keeping the data
+correctness, as this service will be the sole arbitrer for keeping the data
 store instances in a consistent state. The best way to ensure that the
 controller does not end up in a inconsistent state is to ensure that those
 states are not reachable (representable), which can be done by using state
@@ -156,7 +156,7 @@ where
 {
     pub fn handle_message_and_get_input(message: Output) -> Result<Input, IoCoreError> {
         match input {
-            // Handle various message types, for example and election message
+            // Handle various message types, for example an election message
             Output::CheckClusterEnabled(endpoint) => self
                 .simulator
                 .check_cluster_enabled(&endpoint.uri)
@@ -178,7 +178,7 @@ We have the following pieces so far:
 - An abstraction to call simulator APIs.
 
 In order to close the loop, we bring in the concepts of deterministic
-simulation testing(DST). DST provides guidelines and techniques for building
+simulation testing (DST). DST provides guidelines and techniques for building
 systems that can fully simulate external interactions, rather than prescribing
 specific implementation steps.
 
@@ -201,9 +201,8 @@ been abstracted away from any source of non-determinism. And that's the main
 principle of DST -- non-determinism. We want to ensure that all possible
 interactions which can introduce non-determinism have been removed, such that
 there is only one logical series of steps that leads to a particular outcome.
-In distributed systems parlance, this is serializability. The simplest way of
-achieving this is by providing your state machine, or the state machine driver
-a single interface for all non-deterministic interactions. 
+The simplest way of achieving this is by providing your state machine, or the
+state machine driver a single interface for all non-deterministic interactions.
 
 This interface in my case was the `Simulator` trait, which housed all external
 systems methods
