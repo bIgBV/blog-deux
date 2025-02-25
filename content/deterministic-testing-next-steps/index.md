@@ -17,8 +17,8 @@ system as a whole works as expected even in the most dire of circumstances.
 
 While a good idea, in practice integration tests are seldom as comprehensive as
 they set out to be. They are the first to get afflicted by bit rot and tech
-debt due to their complex setup requirements. Debugging them tends to be
-just as difficult as debugging the actual failures themselves.
+debt due to their complex setup requirements. Debugging them can be just as
+difficult as debugging the actual failures themselves.
 
 When designing a new cluster controller for a new data store, I was faced with
 solving this problem. I wanted to build a robust system, with a focus on
@@ -76,12 +76,15 @@ enum Message {
     CheckClusterEnabled(Endpoint { uri: String })
 }
 
-fn step(self, input: Input) -> State {
-    match(self.state, input) => {
-        // All possible transitions here
-        _ => State::Failure
+impl Machine {
+    fn step(self, input: Input) -> State {
+        match(&self.state, input) => {
+            // All possible transitions here
+            _ => State::Failure
+        }
     }
 }
+
 ```
 
 
@@ -97,6 +100,12 @@ not such a request exists. This is why the `step` method is designed to be
 driven externally, via a method which might look something like this:
 
 ```rust
+impl Machine {
+    // step is the same
+
+    fn poll_next_message(&self) -> Option<Message> {..}
+}
+
 fn run_state_machine() {
     let machine = Machine {
         state: State::Initialized
@@ -169,11 +178,9 @@ We have the following pieces so far:
 - An abstraction to call simulator APIs.
 
 In order to close the loop, we bring in the concepts of deterministic
-simulation testing(DST). DST doesn't necessarily prescribe specific steps to
-take when implementing a system to get it's benefits. Rather, it's a set of
-guidelines and techniques of building systems, at the end of which we should be
-able to fully simulate the external systems that our system under test
-interacts with.
+simulation testing(DST). DST provides guidelines and techniques for building
+systems that can fully simulate external interactions, rather than prescribing
+specific implementation steps.
 
 There's a [lot][foundation-db-talk] [of][tigerbeetle]
 [literature][predrag-eurorust] [on this][foundationdb] topic, and they provide
@@ -230,12 +237,12 @@ required calls into the external systems. Internally, it is a fairly thin shim
 over the API calls themselves, with the addition of the tracing functionality.
 This is what makes the system self describing. The `ConcreteSimulaotor` has
 functionality to serialize the input and outputs of every method that opt into
-it. This prescribes certain requirements the these values, specifically the
-requirement of them being serializable, _including_ the error types, as we want
-to capture the full values. This is a hard requirement in order to be of use in
-the `TestSimulator`
+the tracing functionality. This requires the input and output types of the
+methods be serializable, _including_ the error types, as we want to capture the
+full values. This is a hard requirement in order to be of use in the
+`TestSimulator`
 
-The values are written to a file on a background task started when a
+The values are written to a file on a background task that is started when a
 `ConcreteSimulator` instance is initialized. The file name, and whether or not
 recording is enabled can be easily configurable. While there are many ways of
 handling the serialization format, I went for simplicity, and have
@@ -307,7 +314,8 @@ impl Simulator for TestSimulator {
 And with this, we get replayability along with behavior validation. If the
 order of method calls does not match the order present in the scenario files,
 then it is either a bug or a behavior issue, and therefore needs to be
-investigated. 
+investigated. If the input does not match the expected input, that is also
+treated similarly.
 
 Authoring tests now becomes as simple as instantiating the controller with the
 `TestSimulator` which is given a scenario file to run through, and driving the
@@ -338,7 +346,7 @@ of a push based one. This is because it allows for the core (in my case the
 state machine, and it's driver) to decide when to check external systems,
 instead of being notified of changes which can happen at any point of time. By
 inverting the control, it not only makes the core logic simpler, it also makes
-the simulator implementations a lot simpler.
+the simulator implementations a lot cleaner.
 
 A concrete (pun only slightly not intended) example of this is checking for
 elections state and cluster state notifications. The controller needs to act on
@@ -355,7 +363,7 @@ get the actual notifications. By inverting control, the core system dictates
 when it wants to check on these notifications and acts on it, and by extension
 makes it deterministic. The `Simulator` interface now only needs to have
 methods like `fn check_cluster_notifications(&self) -> ClusterEvent` and `fn
-check_election_notification(&self) -> ElectionEvent`, and therefore, the
+check_election_notification(&self) -> ElectionEvent`, etc., and therefore, the
 implementors only need to care about serializing and de-serializing the actual
 values, and not the entire mechanism of pushing the notification to the
 controller.
