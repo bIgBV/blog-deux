@@ -91,7 +91,7 @@ logo_home_link = "/"
 main_menu = [
   { url = "/about/", name = "about" },
   { url = "https://github.com/bIgBV", name = "Github", external = true },
-  { url = "https://x.com/2093bps", name = "Twitter", external = true },
+  { url = "https://bsky.app/profile/bytesandpeaks.bsky.social", name = "BlueSky", external = true },
 ]
 
 # Displayed as title of drop-down menu when size of main_menu > show_menu_items.
