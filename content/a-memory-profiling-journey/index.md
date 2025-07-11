@@ -195,7 +195,6 @@ impl Telegrapher {
             let mut messages = Vec::with_capacity(config.batch_size);
             let received = rx.recv_many(&mut messages);
             while received != 0 {
-                // Gets a handle to ~~Some~~ runtime
                 producer
                     .produce(message)
                     .await
