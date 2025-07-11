@@ -148,7 +148,7 @@ dhat-rs is [rust port][dhat-repo] of Valgrinds DHAT, a heap profiler, and the pr
 {% sidenote(note_name="dhat-viewer", inline_segment="It gives us a lot of useful data," ) %}
     In this example, I'm only focusing on the `t-gmax` allocation stacks, but the data can be used to learn a whole host of other information regarding the execution of a program. I'm barely even scratching the surface here. The only con is that program execution slows down significantly when using the profiler.
 {% end %}
- but the main information I gleaned from it was the `t-max` sort option, which shows the allocations sorted by size during the max size of the program heap. The [instruction][dhat-instructions] for the library are great, and I quickly set up the profiler behind a second feature flag. Running the same test program created a `dhat-heap.josn` in the workind directory which I loaded into the viewer. Immediately this particular stack trace stood out once I sorted the view by `t-gmax`.
+ but the main information I gleaned from it was the `t-max` sort option, which shows the allocations sorted by size during the max size of the program heap. The [instructions][dhat-instructions] for the library are great, and I quickly set up the profiler behind a second feature flag. Running the same test program created a `dhat-heap.josn` in the working directory which I loaded into the viewer. Immediately this particular stack trace stood out once I sorted the view by `t-gmax`.
 
  [dhat-repo]: https://github.com/nnethercote/dhat-rs
 
