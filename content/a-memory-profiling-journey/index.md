@@ -100,17 +100,57 @@ Soon, a customer reaches out to you, calling out that your library is using more
 
 In order to understand whether or not improvements could be made, I first need to establish a baseline. This can be done using two main tools on Windows, [dhat-rs][dhat-rs], and the [stats_alloc][stats-alloc] crate. To start with, I wrote a simple program that sends 1000 1KB messages using the library.
 
-The `stats_alloc` crate provides an instrumented allocator that monitors all allocation and de-allocation operations performed globally within the process. It exposes an API to get the latest snapshot numbers, which when graphed over time provide a picture of the memory usage of the program at different points of time. In my code, I just spawned a background thread to call this API and write the timestamp, along with the data as a csv file to disk. Putting this functionality behind a feature gate ensured that I could use a specific profiler for different program runs. Once the program finished execution, I wrote a python script to plot the allocations vs deallocations which resulted in the following graph
+The `stats_alloc` crate provides an instrumented allocator that monitors all allocation and de-allocation operations performed globally within the process. It exposes the [`stats`][stats-api] get the latest snapshot numbers, which when graphed over time provide a picture of the memory usage of the program at different points of time. In my code, I just spawned a background thread to call this API and write the timestamp, along with the data as a csv file to disk.
+
+```rust
+#[cfg(feature = "stats-alloc")]
+fn monitor_memory() {
+    use stats_alloc::{Region, StatsAlloc};
+    use std::fs::File;
+    use std::io::Write;
+    use std::time::UNIX_EPOCH;
+
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap();
+    let file_name = format!("memory-profiling/memory_usage_{}.log", timestamp.as_secs());
+
+    let mut file = File::create(file_name).expect("Unable to create log file");
+
+    thread::spawn(move || loop {
+        use std::time::SystemTime;
+
+        let current = ALLOC.stats();
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+        let memory_usage = format!(
+            "Time: {}, Allocated: {}, Deallocated: {}\n",
+            now, current.bytes_allocated, current.bytes_deallocated
+        );
+        file.write_all(memory_usage.as_bytes())
+            .expect("Unable to write to log file");
+        thread::sleep(Duration::from_secs(1));
+    });
+}
+```
+
+Putting this functionality behind a feature gate ensured that I could use a specific profiler for different program runs. Once the program finished execution, I wrote a python script to plot the allocations vs deallocations which resulted in the following graph
+
+[stats-api]: https://docs.rs/stats_alloc/latest/stats_alloc/struct.StatsAlloc.html#method.stats
 
 ![memory-usage-baseline](./memory-usage-baseline.png)
 
 As we can see, the memory usage spikes immediately to over 12 MB and slowly trails off until the end of the program. While this did not raise any alarm bells in my head when I first saw it, in hindsight the problem is glaringly obvious, especially when paired with the output of dhat
 
-dhat-rs is rust port of Valgrinds DHAT, a heap profiler, and the profiles it generates can be used with the [`dhat-viewer`](https://nnethercote.github.io/dh_view/dh_view.html) website.
+dhat-rs is [rust port][dhat-repo] of Valgrinds DHAT, a heap profiler, and the profiles it generates can be used with the [`dhat-viewer`](https://nnethercote.github.io/dh_view/dh_view.html) website.
 {% sidenote(note_name="dhat-viewer", inline_segment="It gives us a lot of useful data," ) %}
     In this example, I'm only focusing on the `t-gmax` allocation stacks, but the data can be used to learn a whole host of other information regarding the execution of a program. I'm barely even scratching the surface here. The only con is that program execution slows down significantly when using the profiler.
 {% end %}
- but the main information I gleaned from it was the `t-max` sort option, which shows the allocations sorted by size during the max size of the program heap. The [instruction][dhat-instructions] for the library are great, and I quickly set up the profiler behind a second feature flag. Running the same test program created a `dhat-profile.josn` in the workind directory which I loaded into the viewer. Immediately this particular stack trace stood out once I sorted the view by `t-gmax`.
+ but the main information I gleaned from it was the `t-max` sort option, which shows the allocations sorted by size during the max size of the program heap. The [instruction][dhat-instructions] for the library are great, and I quickly set up the profiler behind a second feature flag. Running the same test program created a `dhat-heap.josn` in the workind directory which I loaded into the viewer. Immediately this particular stack trace stood out once I sorted the view by `t-gmax`.
+
+ [dhat-repo]: https://github.com/nnethercote/dhat-rs
 
 ![baseline-dhat-view](./allocations-baseline-1000.png)
 
