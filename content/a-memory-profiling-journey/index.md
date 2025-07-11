@@ -173,6 +173,53 @@ These changes are primarily focused on two levers: throughput and backpressure. 
     A great additional benefit of using batching APIs is that it speeds up the over execution time. When running tests locally, the baseline version of the test program took 8 minutes on average to execute. After the fixes, it took 16 seconds. Plus, I could run workloads of up to a million messages within a few minutes vs the program taking hours previously.
 {% end %} And by using a bounded channel, and applying backpressure via our public API, we ensure that we always use a deterministic amount of resources and remove any change of unbounded growth. By switching to a bounded channel, we limit the overall memory usage of our system to `O(message_size * queue_size)`.
 
+```rust
+use tokio::sync::mpsc;
+
+pub struct Telegrapher {
+    tx: mpsc::Sender<Message>,
+}
+
+pub struct Config {
+    queue_depth: usize,
+    batch_size: usize,
+}
+
+impl Telegrapher {
+    pub fn new(endpoint: String, config: Config) -> Self {
+        let producer = Producer::new(endpoint);
+
+        let (tx, rx) = mpsc::channel::<Message>(config.queue_depth);
+
+        get_runtime().spawn(async || {
+            let mut messages = Vec::with_capacity(config.batch_size);
+            let received = rx.recv_many(&mut messages);
+            while received != 0 {
+                // Gets a handle to ~~Some~~ runtime
+                producer
+                    .produce(message)
+                    .await
+                    .expect("We're ignoring error handling for now");
+            }
+        });
+
+        Self { tx }
+    }
+
+    pub fn send_message(data: &[u8]) -> Result<(), Error> {
+        // Internally allocates a vec and copies data into it
+        let encoded_message = Message::from(data);
+        let Ok(_) = self.tx.try_send(encoded_message) else {
+            return Err("QUEUE FULL".into());
+        };
+
+        Ok(())
+    }
+}
+```
+
+# The results
+
 After setting defaults values for the queue size and batch size (128 and 64 respectively), I re-ran the test program, this time with a workload of sending 1 million 1KB messages. The dhat profile showed the peak memory usage of the program was a little over 600 KB
 
 ![dhat-fixes-overall](./dhat-fixes-mill-overall.png)
